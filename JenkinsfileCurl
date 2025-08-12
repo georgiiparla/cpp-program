@@ -36,6 +36,13 @@ pipeline {
             }
         }
 
+        stage('Inspect Workspace BEFORE NEXUS') {
+            steps {
+                echo "Listing all files in the workspace..."
+                sh 'ls -la'
+            }
+        }
+
         stage('Publish to Nexus') {
             steps {
                 script {
@@ -57,7 +64,6 @@ pipeline {
         stage ('Retrieve and Verify Artifact') {
             steps {
                 script {
-                    // Define the version and filename of the artifact we want to pull
                     def targetVersion = "${BASE_VERSION}.${BUILD_NUMBER}"
                     def targetZipName = "${ZIP_NAME}" // Using the same ZIP_NAME from your environment
 
@@ -67,21 +73,24 @@ pipeline {
 
                     withCredentials([usernamePassword(credentialsId: "${NEXUS_CREDENTIALS_ID}", usernameVariable: 'NEXUS_USER', passwordVariable: 'NEXUS_PASS')]) {
                         
-                        // Use curl to download the file. The '-o' flag specifies the output filename.
                         sh """
                             curl -v -u "${NEXUS_USER}:${NEXUS_PASS}" -o ${localFileName} \\
                                 ${NEXUS_URL}/repository/${NEXUS_REPO}/${NEXUS_GROUP_ID}/${ARTIFACT_ID}/${targetVersion}/${targetZipName}
                         """
                     }
 
-                    // --- Verification Step ---
-                    // This command checks if the file exists in the current workspace.
-                    // The 'sh' step will automatically fail the build if the command inside returns a non-zero exit code.
                     echo "Verifying that the artifact was downloaded successfully..."
                     sh "test -f ${localFileName}"
                     
                     echo "Verification successful. File '${localFileName}' exists in the workspace."
                 }
+            }
+        }
+
+        stage('Inspect Workspace AFTER PULLING FROM NEXUS') {
+            steps {
+                echo "Listing all files in the workspace..."
+                sh 'ls -la'
             }
         }
 
