@@ -40,28 +40,30 @@ pipeline {
         stage('Publish to Nexus') {
             steps {
                 // Define the full version string for this build
-                def releaseVersion = "${BASE_VERSION}.${BUILD_NUMBER}"
+                script {
+                    def releaseVersion = "${BASE_VERSION}.${BUILD_NUMBER}"
 
-                echo "Uploading artifact version ${releaseVersion} to ${NEXUS_REPO}..."
+                    echo "Uploading artifact version ${releaseVersion} to ${NEXUS_REPO}..."
                 
-                nexusArtifactUploader(
-                    nexusVersion: 'nexus3',
-                    protocol: 'http',
-                    nexusUrl: "${NEXUS_URL}",
-                    credentialsId: "${NEXUS_CREDENTIALS_ID}",
+                    nexusArtifactUploader(
+                        nexusVersion: 'nexus3',
+                        protocol: 'http',
+                        nexusUrl: "${NEXUS_URL}",
+                        credentialsId: "${NEXUS_CREDENTIALS_ID}",
                     
-                    groupId: "${NEXUS_GROUP_ID}",
-                    artifactId: "${ARTIFACT_NAME}",
-                    version: "${releaseVersion}",
-                    repository: "${NEXUS_REPO}",
+                        groupId: "${NEXUS_GROUP_ID}",
+                        artifactId: "${ARTIFACT_NAME}",
+                        version: "${releaseVersion}",
+                        repository: "${NEXUS_REPO}",
                     
-                    artifacts: [
-                        [
-                            file: "${ZIP_NAME}",
-                            type: 'zip'
+                        artifacts: [
+                            [
+                                file: "${ZIP_NAME}",
+                                type: 'zip'
+                            ]
                         ]
-                    ]
-                )
+                    )
+                }
             }
         }
 
@@ -72,3 +74,4 @@ pipeline {
         }
     }
 }
+
