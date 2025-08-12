@@ -80,7 +80,7 @@ pipeline {
                     echo "Verifying that the artifact was downloaded successfully..."
                     sh "test -f ${localFileName}"
                     
-                    echo "Verification successful. File '${targetZipName}' exists in the workspace."
+                    echo "Verification successful. File '${localFileName}' exists in the workspace."
                 }
             }
         }
