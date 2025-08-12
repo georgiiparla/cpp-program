@@ -55,6 +55,8 @@ pipeline {
                     
                     artifacts: [
                         [
+                            artifactId: 'cpp-app',
+                            classifier: '',
                             file: "${ZIP_NAME}",
                             type: 'zip'
                         ]
@@ -71,4 +73,5 @@ pipeline {
         }
     }
 }
+
 
