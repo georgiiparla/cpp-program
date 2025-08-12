@@ -1,41 +1,22 @@
 pipeline {
     agent any
 
+    // --- Central Configuration Block ---
     environment {
+        // --- Project Configuration ---
         ARTIFACT_NAME   = 'my-program'
         ZIP_NAME        = 'cpp-build.zip'
         BASE_VERSION    = '1.0'
 
+        // --- Nexus Configuration ---
         NEXUS_URL           = '172.20.10.25:8081'
         NEXUS_CREDENTIALS_ID= '7d196d2f-f3c1-4803-bde9-2d17d18776b3'
         NEXUS_GROUP_ID      = 'rs2.georgii-parla.cpp-programs'
-        NEXUS_RELEASES_REPO = 'cpp-releases'
-        NEXUS_SNAPSHOTS_REPO = 'cpp-snapshots'
-    }
-
-    parameters {
-        booleanParam(name: 'IS_SNAPSHOT', defaultValue: true, description: 'Check this to build a SNAPSHOT version')
+        NEXUS_REPO          = 'cpp-releases' // The single target repository
     }
 
     stages {
         
-        stage('Prepare Build') {
-            steps {
-                script {
-                    if (params.IS_SNAPSHOT) {
-                        echo "Running a SNAPSHOT build."
-                        env.ARTIFACT_VERSION = "${BASE_VERSION}-SNAPSHOT"
-                        env.TARGET_REPO = "${NEXUS_SNAPSHOTS_REPO}"
-                    } else {
-                        echo "Running a RELEASE build."
-                        env.ARTIFACT_VERSION = "${BASE_VERSION}.${BUILD_NUMBER}"
-                        env.TARGET_REPO = "${NEXUS_RELEASES_REPO}"
-                    }
-                }
-            }
-        }
-        
-
         stage ('Build Executable') {
             steps {
                 echo "Compiling C++ source files..."
@@ -58,16 +39,22 @@ pipeline {
 
         stage('Publish to Nexus') {
             steps {
-                echo "Uploading artifact version ${ARTIFACT_VERSION} to ${TARGET_REPO}..."
+                // Define the full version string for this build
+                def releaseVersion = "${BASE_VERSION}.${BUILD_NUMBER}"
+
+                echo "Uploading artifact version ${releaseVersion} to ${NEXUS_REPO}..."
+                
                 nexusArtifactUploader(
                     nexusVersion: 'nexus3',
                     protocol: 'http',
                     nexusUrl: "${NEXUS_URL}",
                     credentialsId: "${NEXUS_CREDENTIALS_ID}",
+                    
                     groupId: "${NEXUS_GROUP_ID}",
                     artifactId: "${ARTIFACT_NAME}",
-                    version: "${ARTIFACT_VERSION}",
-                    repository: "${TARGET_REPO}",
+                    version: "${releaseVersion}",
+                    repository: "${NEXUS_REPO}",
+                    
                     artifacts: [
                         [
                             file: "${ZIP_NAME}",
@@ -85,4 +72,3 @@ pipeline {
         }
     }
 }
-
