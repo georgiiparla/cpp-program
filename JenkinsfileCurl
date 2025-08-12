@@ -40,7 +40,7 @@ pipeline {
             steps {
                 script {
                     def snapshotVersion = "${BASE_VERSION}.${BUILD_NUMBER}"
-                    echo "Uploading artifact version ${releaseVersion} to ${NEXUS_REPO}..."
+                    echo "Uploading artifact version ${snapshotVersion} to ${NEXUS_REPO}..."
 
                     withCredentials([usernamePassword(credentialsId: "${NEXUS_CREDENTIALS_ID}", usernameVariable: 'NEXUS_USER', passwordVariable: 'NEXUS_PASS')]) {
                         
