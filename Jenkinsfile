@@ -38,6 +38,7 @@ pipeline {
 
         stage('Publish to Nexus') {
             steps {
+                script {
                 def releaseVersion = "${BASE_VERSION}.${BUILD_NUMBER}"
                 echo "Uploading artifact version ${releaseVersion} to ${NEXUS_REPO}..."
                 
@@ -59,6 +60,7 @@ pipeline {
                         ]
                     ]
                 )
+                }
             }
         }
 
@@ -69,3 +71,4 @@ pipeline {
         }
     }
 }
+
