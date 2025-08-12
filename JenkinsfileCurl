@@ -14,14 +14,14 @@ pipeline {
         NEXUS_REPO = 'cpp-releases'
     }
 
-    stage('Cleanup Workspace') {
+
+    stages {
+        stage('Cleanup Workspace') {
             steps {
                 echo "Cleaning up the workspace before the build..."
                 cleanWs()
             }
-    }
-
-    stages {
+        }
         
         stage ('Build Executable') {
             steps {
