@@ -2,14 +2,15 @@ pipeline {
     agent any
 
     environment {
-        ARTIFACT_NAME = 'my-program'
-        ARTIFACT_ID = "my-program"
-        ZIP_NAME = 'cpp-build.zip'
+        FILE_NAME = 'program-foo-bar'
+
+        ARTIFACT_ID = 'core'
+        ZIP_NAME = 'core_ws.zip'
         BASE_VERSION = '1.0'
 
         NEXUS_URL = '172.20.10.25:8081'
         NEXUS_CREDENTIALS_ID = '7d196d2f-f3c1-4803-bde9-2d17d18776b3'
-        NEXUS_GROUP_ID = 'rs2.georgii-parla.cpp-programs'
+        NEXUS_GROUP_ID = 'CS-Katana-lin/main'
         NEXUS_REPO = 'cpp-releases'
     }
 
@@ -18,7 +19,7 @@ pipeline {
         stage ('Build Executable') {
             steps {
                 echo "Compiling C++ source files..."
-                sh "g++ -I main/ main/*.cpp -o ${ARTIFACT_NAME}"
+                sh "g++ -I main/ main/*.cpp -o ${FILE_NAME}"
             }
         }
 
@@ -31,15 +32,15 @@ pipeline {
         stage('Package Artifact') {
             steps {
                 echo "Packaging the executable into a ZIP archive..."
-                sh "zip ${ZIP_NAME} ${ARTIFACT_NAME}"
+                sh "zip ${ZIP_NAME} ${FILE_NAME}"
             }
         }
 
         stage('Publish to Nexus') {
             steps {
                 script {
-                    def releaseVersion = "${BASE_VERSION}.${BUILD_NUMBER}"
-                    echo "Uploading artifact version ${releaseVersion} to ${NEXUS_REPO}..."
+                    def snapshotVersion = "${BASE_VERSION}.${BUILD_NUMBER}"
+                    echo "Uploading artifact version ${snapshotVersion} to ${NEXUS_REPO}..."
                 
                     nexusArtifactUploader(
                         nexusVersion: 'nexus3',
@@ -49,7 +50,7 @@ pipeline {
                         repository: "${NEXUS_REPO}",
                     
                         groupId: "${NEXUS_GROUP_ID}",
-                        version: "${releaseVersion}",
+                        version: "${snapshotVersion}",
                     
                         artifacts: [
                             [
@@ -71,6 +72,7 @@ pipeline {
         }
     }
 }
+
 
 
 
