@@ -63,11 +63,13 @@ pipeline {
 
                     echo "Attempting to download ${targetZipName} version ${targetVersion} from Nexus..."
 
+                    def localFileName = "my-retrieved-build.zip"
+
                     withCredentials([usernamePassword(credentialsId: "${NEXUS_CREDENTIALS_ID}", usernameVariable: 'NEXUS_USER', passwordVariable: 'NEXUS_PASS')]) {
                         
                         // Use curl to download the file. The '-o' flag specifies the output filename.
                         sh """
-                            curl -v -u "${NEXUS_USER}:${NEXUS_PASS}" -o ${targetZipName} \\
+                            curl -v -u "${NEXUS_USER}:${NEXUS_PASS}" -o ${localFileName} \\
                                 ${NEXUS_URL}/repository/${NEXUS_REPO}/${NEXUS_GROUP_ID}/${ARTIFACT_ID}/${targetVersion}/${targetZipName}
                         """
                     }
@@ -76,7 +78,7 @@ pipeline {
                     // This command checks if the file exists in the current workspace.
                     // The 'sh' step will automatically fail the build if the command inside returns a non-zero exit code.
                     echo "Verifying that the artifact was downloaded successfully..."
-                    sh "test -f ${targetZipName}"
+                    sh "test -f ${localFileName}"
                     
                     echo "Verification successful. File '${targetZipName}' exists in the workspace."
                 }
