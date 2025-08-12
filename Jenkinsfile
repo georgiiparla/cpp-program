@@ -7,7 +7,7 @@ pipeline {
         BASE_VERSION    = '1.0'
 
         NEXUS_URL           = '172.20.10.25:8081'
-        NEXUS_CREDENTIALS_ID= '7d196d2f-f3c1-4803-bde9-2d18776b3'
+        NEXUS_CREDENTIALS_ID= '7d196d2f-f3c1-4803-bde9-2d17d18776b3'
         NEXUS_GROUP_ID      = 'rs2.georgii-parla.cpp-programs'
         NEXUS_RELEASES_REPO = 'cpp-releases'
         NEXUS_SNAPSHOTS_REPO = 'cpp-snapshots'
@@ -85,3 +85,4 @@ pipeline {
         }
     }
 }
+
