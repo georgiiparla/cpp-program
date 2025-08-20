@@ -49,7 +49,8 @@ pipeline {
 
                     withCredentials([usernamePassword(credentialsId: "${NEXUS_CREDENTIALS_ID}", usernameVariable: 'NEXUS_USER', passwordVariable: 'NEXUS_PASS')]) {
                         sh """
-                            curl -v -f -u "${NEXUS_USER}:${NEXUS_PASS}" \\
+                            # Using escaped variables for security
+                            curl -v -f -u "\$NEXUS_USER:\$NEXUS_PASS" \\
                                  --upload-file ${ZIP_NAME} \\
                                  "${fullArtifactUrl}"
                         """
@@ -67,7 +68,8 @@ pipeline {
 
                     withCredentials([usernamePassword(credentialsId: "${NEXUS_CREDENTIALS_ID}", usernameVariable: 'NEXUS_USER', passwordVariable: 'NEXUS_PASS')]) {
                         sh """
-                            curl -v -f -u "${NEXUS_USER}:${NEXUS_PASS}" -o ${saveAsRetrievedBuild} \\
+                            # Using escaped variables for security
+                            curl -v -f -u "\$NEXUS_USER:\$NEXUS_PASS" -o ${saveAsRetrievedBuild} \\
                                  "${fullArtifactUrl}"
                         """
                     }
@@ -77,14 +79,14 @@ pipeline {
             }
         }
 
-        stage("Don't care. Inspect Workspace after downloading from Nexus") {
+        stage("Inspect Workspace after downloading from Nexus") {
             steps {
                 echo "Listing all files in the workspace..."
                 sh 'ls -la'
             }
         }
 
-        stage ("Don't care. Deploy") {
+        stage ("Deploy") {
             steps {
                 echo 'Deploying...'
             }
