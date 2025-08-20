@@ -33,7 +33,7 @@ pipeline {
         }
 
         // Check first outcomes
-        stage("Don't care. Inspect Workspace before publishing to Nexus") { // <-- FIX: Used double quotes
+        stage("Don't care. Inspect Workspace before publishing to Nexus") {
             steps {
                 echo "Listing all files in the workspace..."
                 sh 'ls -la'
@@ -79,7 +79,7 @@ pipeline {
             }
         }
 
-        stage("Don't care. Inspect Workspace after downloading from Nexus") { // <-- FIX: Used double quotes
+        stage("Don't care. Inspect Workspace after downloading from Nexus") {
             steps {
                 echo "Listing all files in the workspace..."
                 sh 'ls -la'
