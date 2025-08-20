@@ -2,73 +2,57 @@ pipeline {
     agent any
 
     environment {
-        FILE_NAME = 'program-foo-bar'
+        // Don't care. Build Configuration
+        COMPILED_FILE_NAME   = 'program-foo-bar'
+        ZIP_NAME             = 'core_ws.zip'
 
-        ARTIFACT_ID = 'core'
-        ZIP_NAME = 'core_ws.zip'
-        BASE_VERSION = '1.0'
-
-        NEXUS_URL = '172.20.10.25:8081'
+        // Nexus Base Configuration
+        NEXUS_URL            = '172.20.10.25:8081'
         NEXUS_CREDENTIALS_ID = '7d196d2f-f3c1-4803-bde9-2d17d18776b3'
-        NEXUS_GROUP_ID = 'CS-Katana-lin/main'
-        NEXUS_REPO = 'cpp-releases'
+        NEXUS_REPO           = 'cpp-releases'
+
+        // Centralized Configuration
+        NEXUS_REPO_URL       = "${NEXUS_URL}/repository/${NEXUS_REPO}"
+        NEXUS_PATH_STRUCTURE = 'foo/bar/fizz/buzz'
+        
+        // Central place to define your versioning rule
+        VERSION_STRATEGY     = "${BUILD_NUMBER}"
     }
 
-
     stages {
-        stage('Cleanup Workspace') {
+        // Don't care. Build stages (Checkout, Compile, Package, etc.)
+        stage('Build & Package') {
             steps {
-                echo "Cleaning up the workspace before the build..."
                 cleanWs()
-            }
-        }
-
-        stage('Checkout Source') {
-            steps {
-                echo "Checking out source code..."
                 checkout scm
-            }
-        }
-        
-        stage ('Build Executable') {
-            steps {
-                echo "Compiling C++ source files..."
-                sh "g++ -I main/ main/*.cpp -o ${FILE_NAME}"
+                echo "Compiling..."
+                sh "g++ -I main/ main/*.cpp -o ${COMPILED_FILE_NAME}"
+                echo "Packaging..."
+                sh "zip ${ZIP_NAME} ${COMPILED_FILE_NAME}"
             }
         }
 
-        stage ('Test'){
-            steps {
-                echo 'Testing...'
-            }
-        }
-
-        stage('Package Artifact') {
-            steps {
-                echo "Packaging the executable into a ZIP archive..."
-                sh "zip ${ZIP_NAME} ${FILE_NAME}"
-            }
-        }
-
-        stage('Inspect Workspace BEFORE NEXUS') {
+        // Check first outcomes
+        stage('Don't care. Inspect Workspace before publishing to Nexus') {
             steps {
                 echo "Listing all files in the workspace..."
                 sh 'ls -la'
             }
         }
 
+        // Nexus part
         stage('Publish to Nexus') {
             steps {
                 script {
-                    def snapshotVersion = "${BASE_VERSION}.${BUILD_NUMBER}"
-                    echo "Uploading artifact version ${snapshotVersion} to ${NEXUS_REPO}..."
+                    def fullArtifactUrl = "${NEXUS_REPO_URL}/${NEXUS_PATH_STRUCTURE}/${VERSION_STRATEGY}/${ZIP_NAME}"
+                    echo "Uploading artifact as: ${fullArtifactUrl}"
 
                     withCredentials([usernamePassword(credentialsId: "${NEXUS_CREDENTIALS_ID}", usernameVariable: 'NEXUS_USER', passwordVariable: 'NEXUS_PASS')]) {
-                        
                         sh """
-                            curl -v -u "${NEXUS_USER}:${NEXUS_PASS}" \\
-                                --upload-file ${ZIP_NAME} \\
-                                ${NEXUS_URL}/repository/${NEXUS_REPO}/${NEXUS_GROUP_ID}/${ARTIFACT_ID}/${snapshotVersion}/${ZIP_NAME}
+                            # Using --fail for robust error handling
+                            curl -v -f -u "${NEXUS_USER}:${NEXUS_PASS}" \\
+                                 --upload-file ${ZIP_NAME} \\
+                                 "${fullArtifactUrl}"
                         """
                     }
                 }
@@ -78,37 +62,31 @@ pipeline {
         stage ('Retrieve and Verify Artifact') {
             steps {
                 script {
-                    def targetVersion = "${BASE_VERSION}.${BUILD_NUMBER}"
-                    def targetZipName = "${ZIP_NAME}" // Using the same ZIP_NAME from your environment
-
-                    echo "Attempting to download ${targetZipName} version ${targetVersion} from Nexus..."
-
-                    def localFileName = "my-retrieved-build.zip"
+                    def saveAsRetrievedBuild = "my-retrieved-build.zip"
+                    def fullArtifactUrl = "${NEXUS_REPO_URL}/${NEXUS_PATH_STRUCTURE}/${VERSION_STRATEGY}/${ZIP_NAME}"
+                    echo "Downloading artifact from: ${fullArtifactUrl}"
 
                     withCredentials([usernamePassword(credentialsId: "${NEXUS_CREDENTIALS_ID}", usernameVariable: 'NEXUS_USER', passwordVariable: 'NEXUS_PASS')]) {
-                        
                         sh """
-                            curl -v -u "${NEXUS_USER}:${NEXUS_PASS}" -o ${localFileName} \\
-                                ${NEXUS_URL}/repository/${NEXUS_REPO}/${NEXUS_GROUP_ID}/${ARTIFACT_ID}/${targetVersion}/${targetZipName}
+                            # Using --fail for robust error handling
+                            curl -v -f -u "${NEXUS_USER}:${NEXUS_PASS}" -o ${saveAsRetrievedBuild} \\
+                                 "${fullArtifactUrl}"
                         """
                     }
-
-                    echo "Verifying that the artifact was downloaded successfully..."
-                    sh "test -f ${localFileName}"
-                    
-                    echo "Verification successful. File '${localFileName}' exists in the workspace."
+                    sh "test -f ${saveAsRetrievedBuild}"
+                    echo "Verification successful. File '${saveAsRetrievedBuild}' exists."
                 }
             }
         }
 
-        stage('Inspect Workspace AFTER PULLING FROM NEXUS') {
+        stage('Don't care. Inspect Workspace after downloading from Nexus') {
             steps {
                 echo "Listing all files in the workspace..."
                 sh 'ls -la'
             }
         }
 
-        stage ('Deploy'){
+        stage ('Don't care. Deploy'){
             steps {
                 echo 'Deploying...'
             }
