@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     environment {
-        // Don't care. Build Configuration
+        // Build Configuration
         COMPILED_FILE_NAME   = 'program-foo-bar'
         ZIP_NAME             = 'core_ws.zip'
 
@@ -20,7 +20,7 @@ pipeline {
     }
 
     stages {
-        // Don't care. Build stages (Checkout, Compile, Package, etc.)
+        // Build stages (Checkout, Compile, Package, etc.)
         stage('Build & Package') {
             steps {
                 cleanWs()
@@ -33,7 +33,7 @@ pipeline {
         }
 
         // Check first outcomes
-        stage('Don't care. Inspect Workspace before publishing to Nexus') {
+        stage("Don't care. Inspect Workspace before publishing to Nexus") { // <-- FIX: Used double quotes
             steps {
                 echo "Listing all files in the workspace..."
                 sh 'ls -la'
@@ -79,14 +79,14 @@ pipeline {
             }
         }
 
-        stage('Don't care. Inspect Workspace after downloading from Nexus') {
+        stage("Don't care. Inspect Workspace after downloading from Nexus") { // <-- FIX: Used double quotes
             steps {
                 echo "Listing all files in the workspace..."
                 sh 'ls -la'
             }
         }
 
-        stage ('Don't care. Deploy'){
+        stage ("Don't care. Deploy"){ // <-- FIX: Used double quotes
             steps {
                 echo 'Deploying...'
             }
