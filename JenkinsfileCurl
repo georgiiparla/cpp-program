@@ -14,7 +14,6 @@ pipeline {
         NEXUS_CREDENTIALS_ID = '7d196d2f-f3c1-4803-bde9-2d17d18776b3'
         NEXUS_REPO           = 'BASE'
         NEXUS_REPO_URL       = "${NEXUS_URL}/repository/${NEXUS_REPO}"
-        
     }
 
     stages {
@@ -24,8 +23,12 @@ pipeline {
                 checkout scm
 
                 script {
-                    nexusPath = env.BRANCH_NAME.replaceAll('/', '-')
-                    echo "Using Git branch '${env.BRANCH_NAME}' to create Nexus path: ${nexusPath}"
+                    // ★ FIX: Get the branch name directly from Git for reliability.
+                    def currentBranch = sh(script: 'git rev-parse --abbrev-ref HEAD', returnStdout: true).trim()
+
+                    // Now use the reliable 'currentBranch' variable instead of env.BRANCH_NAME
+                    nexusPath = currentBranch.replaceAll('/', '-')
+                    echo "Using Git branch '${currentBranch}' to create Nexus path: ${nexusPath}"
 
                     versionIdentifier = sh(script: 'git rev-parse --short HEAD', returnStdout: true).trim()
                     echo "Using Git commit hash as version: ${versionIdentifier}"
