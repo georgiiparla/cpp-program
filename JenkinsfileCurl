@@ -5,11 +5,9 @@ pipeline {
     agent any
 
     environment {
-        // Build Configuration
-        COMPILED_FILE_NAME   = 'program-foo-bar-main'
+        COMPILED_FILE_NAME   = 'program-foo-bar-client-main'
         ZIP_NAME             = 'base_bin.zip'
 
-        // Nexus Base Configuration
         NEXUS_URL            = '172.20.10.25:8081'
         NEXUS_CREDENTIALS_ID = '7d196d2f-f3c1-4803-bde9-2d17d18776b3'
         NEXUS_REPO           = 'BASE'
@@ -23,19 +21,15 @@ pipeline {
                 checkout scm
 
                 script {
-                    // ★ 1. Use the more reliable env.GIT_BRANCH variable.
                     def rawBranch = env.GIT_BRANCH
                     
-                    // ★ 2. Remove the 'origin/' prefix to get the clean branch name.
                     def currentBranch = rawBranch.replaceFirst('origin/', '')
 
                     // ★ 3. Apply the hybrid logic to the reliable branch name.
                     if (currentBranch == 'main') {
                         nexusPath = 'main'
                     } else {
-                        // For all other branches, create a dynamic path.
-                        // This turns 'feature/new-login' into 'branches/feature-new-login'
-                        nexusPath = "branches/" + currentBranch.replaceAll('/', '-')
+                        nexusPath = "/" + currentBranch.replaceAll('/', '-')
                     }
                     echo "Determined Nexus path: ${nexusPath}"
 
