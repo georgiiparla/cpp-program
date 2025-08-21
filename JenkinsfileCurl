@@ -23,16 +23,21 @@ pipeline {
                 checkout scm
 
                 script {
-                    def currentBranch = sh(script: 'git rev-parse --abbrev-ref HEAD', returnStdout: true).trim()
+                    // ★ 1. Use the more reliable env.GIT_BRANCH variable.
+                    def rawBranch = env.GIT_BRANCH
+                    
+                    // ★ 2. Remove the 'origin/' prefix to get the clean branch name.
+                    def currentBranch = rawBranch.replaceFirst('origin/', '')
 
-                    // ★ FIX: Handle the main branch as a special case for stability.
-                    if (currentBranch == 'main' || currentBranch == 'HEAD') {
+                    // ★ 3. Apply the hybrid logic to the reliable branch name.
+                    if (currentBranch == 'main') {
                         nexusPath = 'main'
                     } else {
-                        // For all other branches, create a dynamic path
+                        // For all other branches, create a dynamic path.
+                        // This turns 'feature/new-login' into 'branches/feature-new-login'
                         nexusPath = "branches/" + currentBranch.replaceAll('/', '-')
                     }
-                    echo "Using Git branch '${currentBranch}' to create Nexus path: ${nexusPath}"
+                    echo "Determined Nexus path: ${nexusPath}"
 
                     versionIdentifier = sh(script: 'git rev-parse --short HEAD', returnStdout: true).trim()
                     echo "Using Git commit hash as version: ${versionIdentifier}"
