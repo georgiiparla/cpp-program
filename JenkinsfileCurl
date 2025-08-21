@@ -25,7 +25,6 @@ pipeline {
                     
                     def currentBranch = rawBranch.replaceFirst('origin/', '')
 
-                    // ★ 3. Apply the hybrid logic to the reliable branch name.
                     if (currentBranch == 'main') {
                         nexusPath = 'main'
                     } else {
