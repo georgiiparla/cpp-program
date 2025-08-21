@@ -89,7 +89,7 @@ pipeline {
                             curl -v -f -u "\$NEXUS_USER:\$NEXUS_PASS" -o "${ZIP_NAME}" "${fullArtifactUrl}"
                         """
                     }
-                    sh "test -f ${saveAsRetrievedBuild}"
+                    sh "test -f ${ZIP_NAME}"
                     echo "Verification successful. File '${saveAsRetrievedBuild}' exists."
                 }
             }
