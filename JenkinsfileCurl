@@ -6,7 +6,7 @@ pipeline {
     environment {
         // Build Configuration
         COMPILED_FILE_NAME   = 'program-foo-bar'
-        ZIP_NAME             = 'alpamayo_bin.zip'
+        ZIP_NAME             = 'base_bin.zip'
 
         // Nexus Base Configuration
         NEXUS_URL            = '172.20.10.25:8081'
