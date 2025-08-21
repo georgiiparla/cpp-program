@@ -1,41 +1,18 @@
-def versionIdentifier
-def nexusPath
-
 pipeline {
     agent any
 
     environment {
-        COMPILED_FILE_NAME   = 'program-foo-bar-client-main'
+        COMPILED_FILE_NAME   = 'program-foo-bar-main'
         ZIP_NAME             = 'base_bin.zip'
-
-        NEXUS_URL            = '172.20.10.25:8081'
-        NEXUS_CREDENTIALS_ID = '7d196d2f-f3c1-4803-bde9-2d17d18776b3'
-        NEXUS_REPO           = 'BASE'
-        NEXUS_REPO_URL       = "${NEXUS_URL}/repository/${NEXUS_REPO}"
+        NEXUS_REPO_URL       = "http://172.20.10.25:8081/repository/BASE"
+        NEXUS_CREDENTIALS_ID = "7d196d2f-f3c1-4803-bde9-2d17d18776b3"
     }
 
     stages {
-        stage('Build & Package') {
+        stage('Build') {
             steps {
                 cleanWs()
                 checkout scm
-
-                script {
-                    def rawBranch = env.GIT_BRANCH
-                    
-                    def currentBranch = rawBranch.replaceFirst('origin/', '')
-
-                    if (currentBranch == 'main') {
-                        nexusPath = 'main'
-                    } else {
-                        nexusPath = currentBranch.replaceAll('/', '-')
-                    }
-                    echo "Determined Nexus path: ${nexusPath}"
-
-                    versionIdentifier = sh(script: 'git rev-parse --short HEAD', returnStdout: true).trim()
-                    echo "Using Git commit hash as version: ${versionIdentifier}"
-                }
-
                 echo "Compiling..."
                 sh "g++ -I main/ main/*.cpp -o ${COMPILED_FILE_NAME}"
                 echo "Packaging..."
@@ -43,29 +20,30 @@ pipeline {
             }
         }
 
-        stage('Publish Versioned and "Latest" Artifacts') {
+        stage('Test') {
+            steps {
+                echo "Simulating tests..."
+            }
+        }
+
+        stage('Publish to Nexus') {
             steps {
                 script {
-                    def versionedUrl = "${NEXUS_REPO_URL}/${nexusPath}/${versionIdentifier}/${ZIP_NAME}"
-                    def latestUrl = "${NEXUS_REPO_URL}/${nexusPath}/latest/${ZIP_NAME}"
+                    def publisher = load 'nexusPublisher.groovy'
 
-                    withCredentials([usernamePassword(credentialsId: "${NEXUS_CREDENTIALS_ID}", usernameVariable: 'NEXUS_USER', passwordVariable: 'NEXUS_PASS')]) {
-                        echo "Uploading VERSIONED artifact to: ${versionedUrl}"
-                        sh """
-                            curl -v -f -u "\$NEXUS_USER:\$NEXUS_PASS" \\
-                                 --upload-file ${ZIP_NAME} \\
-                                 "${versionedUrl}"
-                        """
-
-                        echo "Uploading LATEST artifact to: ${latestUrl}"
-                        sh """
-                            curl -v -f -u "\$NEXUS_USER:\$NEXUS_PASS" \\
-                                 --upload-file ${ZIP_NAME} \\
-                                 "${latestUrl}"
-                        """
-                    }
-                    sh "rm -f ${ZIP_NAME}"
+                    publisher.publish(
+                        zipFile: ZIP_NAME,
+                        nexusRepoUrl: NEXUS_REPO_URL,
+                        credentialsId: NEXUS_CREDENTIALS_ID
+                    )
                 }
+            }
+        }
+        
+        stage('Deploy') {
+            steps {
+                // This is where you would deploy the artifact
+                echo "Simulating deployment..."
             }
         }
     }
