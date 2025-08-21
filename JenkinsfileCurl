@@ -37,14 +37,6 @@ pipeline {
             }
         }
 
-        // Check first outcomes
-        stage("Inspect Workspace before publishing to Nexus") {
-            steps {
-                echo "Listing all files in the workspace..."
-                sh 'ls -la'
-            }
-        }
-
         // Nexus part
         stage('Publish Versioned and "Latest" Artifacts') {
             steps {
@@ -73,19 +65,11 @@ pipeline {
             }
         }
 
-        // Check first outcomes
-        stage("Check after intermediate cleanup") {
-            steps {
-                echo "Listing all files in the workspace..."
-                sh 'ls -la'
-            }
-        }
-
         stage ('Retrieve and Verify Artifact') {
             steps {
                 script {
-                    def versionedUrl = "${NEXUS_REPO_URL}/${NEXUS_PATH_STRUCTURE}/${versionIdentifier}/${ZIP_NAME}"
-                    echo "Downloading and verifying VERSIONED artifact from: ${versionedUrl}"
+                    def versionedUrl = "${NEXUS_REPO_URL}/${NEXUS_PATH_STRUCTURE}/latest/${ZIP_NAME}"
+                    echo "Downloading and verifying LATEST artifact from: ${versionedUrl}"
 
                     withCredentials([usernamePassword(credentialsId: "${NEXUS_CREDENTIALS_ID}", usernameVariable: 'NEXUS_USER', passwordVariable: 'NEXUS_PASS')]) {
                         sh """
@@ -95,13 +79,6 @@ pipeline {
                     sh "test -f ${ZIP_NAME}"
                     echo "Verification successful. File '${ZIP_NAME}' exists."
                 }
-            }
-        }
-
-        stage("Inspect Workspace after downloading from Nexus") {
-            steps {
-                echo "Listing all files in the workspace..."
-                sh 'ls -la'
             }
         }
 
