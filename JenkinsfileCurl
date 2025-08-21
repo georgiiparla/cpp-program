@@ -1,3 +1,5 @@
+def versionIdentifier
+
 pipeline {
     agent any
 
@@ -61,22 +63,30 @@ pipeline {
                                  "${fullArtifactUrl}"
                         """
                     }
+
+                    sh "rm -f ${ZIP_NAME}"
                 }
+            }
+        }
+
+        // Check first outcomes
+        stage("Check after intermediate cleanup") {
+            steps {
+                echo "Listing all files in the workspace..."
+                sh 'ls -la'
             }
         }
 
         stage ('Retrieve and Verify Artifact') {
             steps {
                 script {
-                    def saveAsRetrievedBuild = "my-retrieved-build.zip"
                     // 3. Use the runtime git hash variable for the URL.
                     def fullArtifactUrl = "${NEXUS_REPO_URL}/${NEXUS_PATH_STRUCTURE}/${versionIdentifier}/${ZIP_NAME}"
                     echo "Downloading artifact from: ${fullArtifactUrl}"
 
                     withCredentials([usernamePassword(credentialsId: "${NEXUS_CREDENTIALS_ID}", usernameVariable: 'NEXUS_USER', passwordVariable: 'NEXUS_PASS')]) {
                         sh """
-                            curl -v -f -u "\$NEXUS_USER:\$NEXUS_PASS" -o ${saveAsRetrievedBuild} \\
-                                 "${fullArtifactUrl}"
+                            curl -v -f -u "\$NEXUS_USER:\$NEXUS_PASS" -o "${ZIP_NAME}" "${fullArtifactUrl}"
                         """
                     }
                     sh "test -f ${saveAsRetrievedBuild}"
