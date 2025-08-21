@@ -6,7 +6,7 @@ pipeline {
 
     environment {
         // Build Configuration
-        COMPILED_FILE_NAME   = 'program-foo-bar-client-2'
+        COMPILED_FILE_NAME   = 'program-foo-bar-main'
         ZIP_NAME             = 'base_bin.zip'
 
         // Nexus Base Configuration
@@ -23,11 +23,14 @@ pipeline {
                 checkout scm
 
                 script {
-                    // ★ FIX: Get the branch name directly from Git for reliability.
                     def currentBranch = sh(script: 'git rev-parse --abbrev-ref HEAD', returnStdout: true).trim()
 
-                    // Now use the reliable 'currentBranch' variable instead of env.BRANCH_NAME
-                    nexusPath = currentBranch.replaceAll('/', '-')
+                    if (currentBranch == 'main' || currentBranch == 'HEAD') {
+                        nexusPath = 'main'
+                    } else {
+                        // For all other branches, create a dynamic path
+                        nexusPath = "branches/" + currentBranch.replaceAll('/', '-')
+                    }
                     echo "Using Git branch '${currentBranch}' to create Nexus path: ${nexusPath}"
 
                     versionIdentifier = sh(script: 'git rev-parse --short HEAD', returnStdout: true).trim()
