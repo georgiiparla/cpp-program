@@ -29,7 +29,7 @@ pipeline {
                     if (currentBranch == 'main') {
                         nexusPath = 'main'
                     } else {
-                        nexusPath = "/" + currentBranch.replaceAll('/', '-')
+                        nexusPath = currentBranch.replaceAll('/', '-')
                     }
                     echo "Determined Nexus path: ${nexusPath}"
 
