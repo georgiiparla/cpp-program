@@ -6,7 +6,7 @@ pipeline {
 
     environment {
         // Build Configuration
-        COMPILED_FILE_NAME   = 'program-foo-bar-beta'
+        COMPILED_FILE_NAME   = 'program-foo-bar-client-2'
         ZIP_NAME             = 'base_bin.zip'
 
         // Nexus Base Configuration
