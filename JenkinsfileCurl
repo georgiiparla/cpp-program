@@ -5,8 +5,8 @@ pipeline {
 
     environment {
         // Build Configuration
-        COMPILED_FILE_NAME   = 'program-foo-bar1'
-        ZIP_NAME             = 'alpamayo_bi2n54.zip'
+        COMPILED_FILE_NAME   = 'program-foo-bar'
+        ZIP_NAME             = 'alpamayo_bin.zip'
 
         // Nexus Base Configuration
         NEXUS_URL            = '172.20.10.25:8081'
@@ -54,7 +54,6 @@ pipeline {
                     def latestUrl = "${NEXUS_REPO_URL}/${NEXUS_PATH_STRUCTURE}/latest/${ZIP_NAME}"
 
                     withCredentials([usernamePassword(credentialsId: "${NEXUS_CREDENTIALS_ID}", usernameVariable: 'NEXUS_USER', passwordVariable: 'NEXUS_PASS')]) {
-                        // ★ 3. Upload to the permanent, versioned location
                         echo "Uploading VERSIONED artifact to: ${versionedUrl}"
                         sh """
                             curl -v -f -u "\$NEXUS_USER:\$NEXUS_PASS" \\
@@ -62,7 +61,6 @@ pipeline {
                                  "${versionedUrl}"
                         """
 
-                        // ★ 4. Upload the SAME file again to the 'latest' location, overwriting the old one
                         echo "Uploading LATEST artifact to: ${latestUrl}"
                         sh """
                             curl -v -f -u "\$NEXUS_USER:\$NEXUS_PASS" \\
@@ -86,7 +84,6 @@ pipeline {
         stage ('Retrieve and Verify Artifact') {
             steps {
                 script {
-                    // ★ 5. Verification should always check the permanent, versioned artifact
                     def versionedUrl = "${NEXUS_REPO_URL}/${NEXUS_PATH_STRUCTURE}/${versionIdentifier}/${ZIP_NAME}"
                     echo "Downloading and verifying VERSIONED artifact from: ${versionedUrl}"
 
