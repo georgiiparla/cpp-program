@@ -25,6 +25,12 @@ pipeline {
             steps {
                 cleanWs()
                 checkout scm
+
+                script {
+                    versionIdentifier = sh(script: 'git rev-parse --short HEAD', returnStdout: true).trim()
+                    echo "Using Git commit hash as version: ${versionIdentifier}"
+                }
+
                 echo "Compiling..."
                 sh "g++ -I main/ main/*.cpp -o ${COMPILED_FILE_NAME}"
                 echo "Packaging..."
@@ -44,12 +50,12 @@ pipeline {
         stage('Publish to Nexus') {
             steps {
                 script {
-                    def fullArtifactUrl = "${NEXUS_REPO_URL}/${NEXUS_PATH_STRUCTURE}/${VERSION_STRATEGY}/${ZIP_NAME}"
+                    // 3. Use the runtime git hash variable for the URL.
+                    def fullArtifactUrl = "${NEXUS_REPO_URL}/${NEXUS_PATH_STRUCTURE}/${versionIdentifier}/${ZIP_NAME}"
                     echo "Uploading artifact as: ${fullArtifactUrl}"
 
                     withCredentials([usernamePassword(credentialsId: "${NEXUS_CREDENTIALS_ID}", usernameVariable: 'NEXUS_USER', passwordVariable: 'NEXUS_PASS')]) {
                         sh """
-                            # Using escaped variables for security
                             curl -v -f -u "\$NEXUS_USER:\$NEXUS_PASS" \\
                                  --upload-file ${ZIP_NAME} \\
                                  "${fullArtifactUrl}"
@@ -63,12 +69,12 @@ pipeline {
             steps {
                 script {
                     def saveAsRetrievedBuild = "my-retrieved-build.zip"
-                    def fullArtifactUrl = "${NEXUS_REPO_URL}/${NEXUS_PATH_STRUCTURE}/${VERSION_STRATEGY}/${ZIP_NAME}"
+                    // 3. Use the runtime git hash variable for the URL.
+                    def fullArtifactUrl = "${NEXUS_REPO_URL}/${NEXUS_PATH_STRUCTURE}/${versionIdentifier}/${ZIP_NAME}"
                     echo "Downloading artifact from: ${fullArtifactUrl}"
 
                     withCredentials([usernamePassword(credentialsId: "${NEXUS_CREDENTIALS_ID}", usernameVariable: 'NEXUS_USER', passwordVariable: 'NEXUS_PASS')]) {
                         sh """
-                            # Using escaped variables for security
                             curl -v -f -u "\$NEXUS_USER:\$NEXUS_PASS" -o ${saveAsRetrievedBuild} \\
                                  "${fullArtifactUrl}"
                         """
