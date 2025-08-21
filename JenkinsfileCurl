@@ -90,7 +90,7 @@ pipeline {
                         """
                     }
                     sh "test -f ${ZIP_NAME}"
-                    echo "Verification successful. File '${saveAsRetrievedBuild}' exists."
+                    echo "Verification successful. File '${ZIP_NAME}' exists."
                 }
             }
         }
