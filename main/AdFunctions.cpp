@@ -16,7 +16,7 @@ Ad::VehicleType Ad::Data::init_ego_vehicle()
 
 void Ad::Visualize::print_vehicle(const VehicleType &vehicle)
 {
-    std::cout << "Vehicle ID: " << vehicle.Id << "\nVehicle speed: " 
+    std::cout << "Vehicle Id: " << vehicle.Id << "\nVehicle speed: " 
         << vehicle.Speed << "\nVehicle distance: " 
         << vehicle.RelativeDistance << "\nVehicle lane: " 
         << static_cast<std::int32_t>(vehicle.Lane) << std::endl;
