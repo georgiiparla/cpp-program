@@ -4,7 +4,7 @@ pipeline {
     agent any
 
     environment {
-        COMPILED_FILE_NAME   = 'program-foo-bar-main-bov'
+        COMPILED_FILE_NAME   = 'program-foo-bar-main-main'
         ZIP_NAME             = 'base_bin.zip'
     }
 
