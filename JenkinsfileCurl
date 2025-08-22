@@ -4,7 +4,7 @@ pipeline {
     agent any
 
     environment {
-        COMPILED_FILE_NAME   = 'program-foo-bar-main-bov-new'
+        COMPILED_FILE_NAME   = 'program-foo-bar-main-bov-new2'
         ZIP_NAME             = 'base_bin.zip'
         NEXUS_CREDENTIALS_ID = '7d196d2f-f3c1-4803-bde9-2d17d18776b3'
     }
