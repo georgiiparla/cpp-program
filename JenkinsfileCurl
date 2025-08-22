@@ -36,7 +36,7 @@ pipeline {
                 script {
                     nexus.publish(
                         zipFile: ZIP_NAME,
-                        nexusPath: 'katana/CS-Katana-lin/main', // The full, desired path
+                        nexusPath: 'BASE/CS-Katana-lin/main', // The full, desired path
                         credentialsId: NEXUS_CREDENTIALS_ID
                     )
                 }
