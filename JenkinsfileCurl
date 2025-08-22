@@ -33,7 +33,7 @@ pipeline {
         stage('Publish to Nexus') {
             steps {
                 script {
-                    nexus.publish(zipFile: ${ZIP_NAME}, repoName: 'BASE', credentialsId: '7d196d2f-f3c1-4803-bde9-2d17d18776b3')
+                    nexus.publish(zipFile: "${ZIP_NAME}", repoName: 'BASE', credentialsId: '7d196d2f-f3c1-4803-bde9-2d17d18776b3')
                 }
             }
         }
