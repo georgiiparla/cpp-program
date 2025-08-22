@@ -36,13 +36,13 @@ pipeline {
                 script {
                     nexus.publish(
                         zipFile: ZIP_NAME,
-                        nexusPath: 'katana/win/11.0',
+                        nexusPath: 'katana/win/11.0/main',
                         credentialsId: NEXUS_CREDENTIALS_ID
                     )
 
                     nexus.publish(
                         zipFile: ZIP_NAME,
-                        nexusPath: 'katana/win/12.0',
+                        nexusPath: 'katana/win/12.0/feature',
                         credentialsId: NEXUS_CREDENTIALS_ID
                     )
                 }
