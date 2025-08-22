@@ -1,11 +1,11 @@
+def nexus
+
 pipeline {
     agent any
 
     environment {
         COMPILED_FILE_NAME   = 'program-foo-bar-main-bov'
         ZIP_NAME             = 'base_bin.zip'
-        NEXUS_REPO_URL       = "http://172.20.10.25:8081/repository/BASE"
-        NEXUS_CREDENTIALS_ID = "7d196d2f-f3c1-4803-bde9-2d17d18776b3"
     }
 
     stages {
@@ -17,6 +17,10 @@ pipeline {
                 sh "g++ -I main/ main/*.cpp -o ${COMPILED_FILE_NAME}"
                 echo "Packaging..."
                 sh "zip ${ZIP_NAME} ${COMPILED_FILE_NAME}"
+
+                script {
+                    nexus = load 'nexus.groovy'
+                }
             }
         }
 
@@ -29,16 +33,13 @@ pipeline {
         stage('Publish to Nexus') {
             steps {
                 script {
-                    def publisher = load 'nexus.groovy'
-
-                    publisher.publish(zipFile: 'base_bin.zip', repoName: 'BASE', credentialsId: '7d196d2f-f3c1-4803-bde9-2d17d18776b3')
+                    nexus.publish(zipFile: ${ZIP_NAME}, repoName: 'BASE', credentialsId: '7d196d2f-f3c1-4803-bde9-2d17d18776b3')
                 }
             }
         }
         
         stage('Deploy') {
             steps {
-                // This is where you would deploy the artifact
                 echo "Simulating deployment..."
             }
         }
