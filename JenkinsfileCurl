@@ -8,7 +8,7 @@ pipeline {
     environment {
         COMPILED_FILE_NAME   = 'program-foo-bar-main-bov-new2'
         ZIP_NAME             = 'base_bin.zip'
-        NEXUS_CREDENTIALS_ID = 'comms-publisher'
+        NEXUS_CREDENTIALS_ID = 'comms-reader'
     }
 
     stages {
